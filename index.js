@@ -28,7 +28,7 @@ app.listen(PORT, "0.0.0.0", () => {
 });
 
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('MongoDB connected');
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
