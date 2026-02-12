@@ -5,22 +5,37 @@ const cors = require("cors");
 
 const app = express();
 
-// ✅ middleware
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    // add your Vercel URL later, like:
-    // "https://your-frontend.vercel.app",
-  ],
-  credentials: true,
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://habit-tracker-nine-sandy.vercel.app", // Vercel domain
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (Postman, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      return callback(new Error("Not allowed by CORS: " + origin));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+// ✅ handle preflight for all routes
+app.options("*", cors());
+
 app.use(express.json());
 
 // ✅ routes
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/habits", require("./routes/habitRoutes"));
 
-// ✅ health check (super useful on Render)
+// ✅ health check
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3000;
