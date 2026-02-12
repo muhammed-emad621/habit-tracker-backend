@@ -7,7 +7,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://habit-tracker-nine-sandy.vercel.app", // Vercel domain
+  "https://habit-tracker-nine-sandy.vercel.app",
 ];
 
 app.use(
@@ -26,16 +26,21 @@ app.use(
   })
 );
 
-// ✅ handle preflight for all routes
-app.options("*", cors());
+// ✅ Handle preflight without using "*" (prevents the Render crash)
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 app.use(express.json());
 
-// ✅ routes
+// routes
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/habits", require("./routes/habitRoutes"));
 
-// ✅ health check
+// health
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 3000;
