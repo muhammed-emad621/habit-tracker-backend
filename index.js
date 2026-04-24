@@ -8,6 +8,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://habit-tracker-nine-sandy.vercel.app",
+  "https://muhammed-emad621-habit-tracker-fron.vercel.app/"
 ];
 
 app.use(
