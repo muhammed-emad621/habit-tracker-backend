@@ -1,19 +1,18 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "https://habit-tracker-nine-sandy.vercel.app",
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (Postman, curl, server-to-server)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) return callback(null, true);
@@ -26,7 +25,6 @@ app.use(
   })
 );
 
-// ✅ Handle preflight without using "*" (prevents the Render crash)
 app.use((req, res, next) => {
   if (req.method === "OPTIONS") {
     return res.sendStatus(204);
@@ -35,6 +33,13 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`, req.body);
+  }
+  next();
+});
 
 // routes
 app.use("/auth", require("./routes/authRoutes"));
@@ -47,14 +52,13 @@ const PORT = process.env.PORT || 3000;
 
 async function start() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connected");
+    console.log("Supabase connected - Server starting");
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.error("Mongo connection error:", err);
+    console.error("Server error:", err);
     process.exit(1);
   }
 }
